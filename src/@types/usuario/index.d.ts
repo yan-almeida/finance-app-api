@@ -3,3 +3,8 @@ export type SalvarUsuarioPayload = {
   email: string;
   senha: string;
 };
+
+export type AuthUsuarioPayload = {
+  email: string;
+  senha: string;
+};
