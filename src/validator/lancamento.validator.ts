@@ -1,12 +1,12 @@
 import { NextFunction, Response } from 'express';
 import { ValidationError } from 'yup';
-import { SalvarUsuarioPayload } from '../@types/usuario';
+import { LancamentoPayload } from '../@types/lancamento';
 
-import { salvarSchema } from '../schema/usuario/usuario.schema';
+import { salvarSchema } from '../schema/lancamento/lancamento.schema';
 import { CRequest } from '../util/HTTPUtils';
 
-export const salvarUsuarioValidator = async (
-  req: CRequest<SalvarUsuarioPayload>,
+export const salvarLancamentoValidator = async (
+  req: CRequest<LancamentoPayload>,
   res: Response,
   next: NextFunction
 ) => {
@@ -29,4 +29,4 @@ export const salvarUsuarioValidator = async (
   }
 };
 
-export default salvarUsuarioValidator;
+export default salvarLancamentoValidator;
