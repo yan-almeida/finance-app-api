@@ -5,7 +5,9 @@ import {
   Column,
   BeforeUpdate,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
+import Lancamento from './Lancamento';
 require('dotenv').config();
 
 const SALTS = process.env.SALTS;
@@ -13,7 +15,7 @@ const SALTS = process.env.SALTS;
 @Entity('usuario')
 class Usuario {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   nome: string;
@@ -23,6 +25,9 @@ class Usuario {
 
   @Column()
   senha: string;
+
+  @OneToMany(() => Lancamento, (lancamento) => lancamento.usuario)
+  lancamentos: Lancamento[];
 
   @BeforeInsert()
   @BeforeUpdate()
