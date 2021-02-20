@@ -7,7 +7,9 @@ class DefaultColumns {
   @Column()
   nome: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   descricao: string;
 }
 

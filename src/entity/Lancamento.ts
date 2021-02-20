@@ -11,11 +11,11 @@ class Lancamento extends DefaultColumns {
   @Column()
   data: Date;
 
-  @OneToOne(() => Categoria, (categoria) => categoria.id)
-  categoria: Categoria;
+  @OneToOne(() => Categoria)
+  categoria: string;
 
   @ManyToOne(() => Usuario)
-  usuario: Usuario;
+  usuario: string;
 
   @BeforeInsert()
   dated() {
