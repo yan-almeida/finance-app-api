@@ -1,20 +1,33 @@
 import { Router } from 'express';
 import AuthController from './controller/AuthController';
+import LancamentoController from './controller/LancamentoController';
 import UsuarioController from './controller/UsuarioController';
+import authMiddleware from './middleware/authMiddleware';
+import salvarLancamentoValidator from './validator/lancamento.validator';
 import salvarUsuarioValidator from './validator/usuario.validator';
 
 const router = Router();
 
-router.post('/usuarios', salvarUsuarioValidator, UsuarioController.salvar);
+router.use(authMiddleware);
+
+/** usuário */
+router.get('/usuario', UsuarioController.listarTodos);
 router.get(
-  '/usuarios',
-  AuthController.autenticacao,
-  UsuarioController.listarTodos
+  '/usuario/lancamentos',
+
+  UsuarioController.listarTodosLancamentos
 );
-router.delete(
-  '/usuarios/:id',
-  AuthController.autenticacao,
-  UsuarioController.deletar
+router.delete('/usuario/:id', UsuarioController.deletar);
+
+/** lançamento */
+router.post(
+  '/lancamento',
+  salvarLancamentoValidator,
+  LancamentoController.salvar
 );
+
+/** autenticação de usuário */
+router.post('/auth/sign-in', AuthController.autenticacao);
+router.post('/auth/sign-up', salvarUsuarioValidator, UsuarioController.salvar);
 
 export default router;
