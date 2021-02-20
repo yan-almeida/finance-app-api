@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { getRepository } from 'typeorm';
 import { SalvarUsuarioPayload } from '../@types/usuario';
 import Usuario from '../entity/Usuario';
@@ -13,7 +14,7 @@ class UsuarioController {
     const usuarioExiste = await repoUsuario.findOne({ where: { email } });
 
     if (usuarioExiste) {
-      return res.sendStatus(409);
+      return res.sendStatus(StatusCodes.CONFLICT);
     }
 
     const usuario = repoUsuario.create({ nome, email, senha });
@@ -32,20 +33,34 @@ class UsuarioController {
     const usuarioExiste = await repoUsuario.findOne({ where: { id } });
 
     if (!usuarioExiste) {
-      return res.sendStatus(404);
+      return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
     await repoUsuario.delete(id);
 
     return res.json({ message: 'Conta deletada com sucesso.' });
   }
+
+  async listarTodosLancamentos(req: Request, res: Response) {
+    const repository = getRepository(Usuario);
+    const usuario = await repository.findOne(req.userId, {
+      relations: ['lancamentos'],
+    });
+
+    if (usuario.lancamentos.length === 0) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    return res.json(usuario.lancamentos);
+  }
+
   /** metodo para testes */
   async listarTodos(_: Request, res: Response) {
     const repository = getRepository(Usuario);
     const usuarios = await repository.find();
 
     if (usuarios.length === 0) {
-      return res.sendStatus(404);
+      return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
     return res.json(
