@@ -1,10 +1,12 @@
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { paginate } from 'nestjs-typeorm-paginate';
 import { getRepository } from 'typeorm';
 import { LancamentoPayload } from '../@types/lancamento';
 import Lancamento from '../entity/Lancamento';
 import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
+import { pagedList } from '../util/pagedList';
 
 class LancamentoController {
   async salvar(req: CRequest<LancamentoPayload>, res: Response) {
@@ -32,6 +34,26 @@ class LancamentoController {
     await repoLancamento.save(lancamento);
 
     return res.json(lancamento);
+  }
+
+  async listarLancamentosUsuario(req: CRequest, res: Response) {
+    const { page, pageSize } = req.query;
+    const repoLancamento = getRepository(Lancamento);
+
+    const lancamentos = await pagedList<Lancamento>(
+      repoLancamento
+        .createQueryBuilder('lancamento')
+        .orderBy('lancamento.data', 'ASC')
+        .where('lancamento.usuarioId = :id', {
+          id: req.userId,
+        }),
+      {
+        page: page ? page : 1,
+        limit: pageSize ? pageSize : 10,
+      }
+    );
+
+    return res.json(lancamentos);
   }
 }
 
