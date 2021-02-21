@@ -41,23 +41,10 @@ class UsuarioController {
     return res.json({ message: 'Conta deletada com sucesso.' });
   }
 
-  async listarTodosLancamentos(req: Request, res: Response) {
-    const repository = getRepository(Usuario);
-    const usuario = await repository.findOne(req.userId, {
-      relations: ['lancamentos'],
-    });
-
-    if (usuario.lancamentos.length === 0) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
-    }
-
-    return res.json(usuario.lancamentos);
-  }
-
   /** metodo para testes */
   async listarTodos(_: Request, res: Response) {
-    const repository = getRepository(Usuario);
-    const usuarios = await repository.find();
+    const repoUsuario = getRepository(Usuario);
+    const usuarios = await repoUsuario.find();
 
     if (usuarios.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);

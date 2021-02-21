@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { pagination } from 'typeorm-pagination';
 import AuthController from './controller/AuthController';
 import LancamentoController from './controller/LancamentoController';
 import UsuarioController from './controller/UsuarioController';
@@ -15,7 +16,7 @@ router.get('/usuario', UsuarioController.listarTodos);
 router.get(
   '/usuario/lancamentos',
 
-  UsuarioController.listarTodosLancamentos
+  LancamentoController.listarLancamentosUsuario
 );
 router.delete('/usuario/:id', UsuarioController.deletar);
 
