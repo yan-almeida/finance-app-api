@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getRepository } from 'typeorm';
@@ -9,7 +10,7 @@ import { pagedList } from '../util/pagedList';
 
 class LancamentoController {
   async salvar(req: CRequest<LancamentoPayload>, res: Response) {
-    const { categoria, descricao, nome, valor } = req.body;
+    const { categoria, descricao, nome, valor, data } = req.body;
 
     const repoLancamento = getRepository(Lancamento);
     const repoUsuario = getRepository(Usuario);
@@ -22,12 +23,38 @@ class LancamentoController {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
+    const parsedDate = parseISO(data);
+
     const lancamento = repoLancamento.create({
       categoria,
       descricao,
       nome,
       valor,
+      data: parsedDate,
       usuario: req.userId,
+    });
+
+    await repoLancamento.save(lancamento);
+
+    return res.json(lancamento);
+  }
+
+  async editar(req: CRequest<LancamentoPayload>, res: Response) {
+    const { id } = req.params;
+
+    const repoLancamento = getRepository(Lancamento);
+
+    const lancamentoExiste = await repoLancamento.findOne({
+      where: { id: id },
+    });
+
+    if (!lancamentoExiste) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    const lancamento = await repoLancamento.preload({
+      id: parseInt(id),
+      ...req.body,
     });
 
     await repoLancamento.save(lancamento);
