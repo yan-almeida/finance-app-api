@@ -16,7 +16,7 @@ router.get('/usuario', UsuarioController.listarTodos);
 router.get(
   '/usuario/lancamentos',
 
-  LancamentoController.listarLancamentosUsuario
+  LancamentoController.listarLancamentosUsuarioTodos
 );
 router.delete('/usuario/:id', UsuarioController.deletar);
 
@@ -26,6 +26,10 @@ router.post(
   salvarLancamentoValidator,
   LancamentoController.salvar
 );
+
+router.delete('/lancamento', LancamentoController.deletar);
+
+router.patch('/lancamento/:id', LancamentoController.editar);
 
 /** autenticação de usuário */
 router.post('/auth/sign-in', AuthController.autenticacao);

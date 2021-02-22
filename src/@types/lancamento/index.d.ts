@@ -3,4 +3,5 @@ export type LancamentoPayload = {
   descricao: string;
   valor: number;
   categoria: string;
+  data: string;
 };
