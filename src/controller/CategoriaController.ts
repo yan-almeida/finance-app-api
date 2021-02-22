@@ -8,7 +8,7 @@ import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
 import { pagedList } from '../util/pagedList';
 
-class LancamentoController {
+class CategoriaController {
   async salvar(req: CRequest<LancamentoPayload>, res: Response) {
     const { categoria, descricao, nome, valor, data } = req.body;
 
@@ -62,30 +62,7 @@ class LancamentoController {
     return res.json(lancamento);
   }
 
-  async deletar(req: CRequest<{ ids: number[] }>, res: Response) {
-    const { ids } = req.body;
-
-    const repoLancamento = getRepository(Lancamento);
-
-    const lancamentoExiste = await repoLancamento.findByIds(ids);
-
-    if (lancamentoExiste.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Nenhum lançamento encontrado.',
-      });
-    }
-
-    const lancamentosId = lancamentoExiste.map((lancamento) => lancamento.id);
-    await repoLancamento.delete(lancamentosId);
-
-    return res.json(
-      lancamentoExiste.map((lancamento) => ({
-        message: `Lancamento ${lancamento.nome} deletado com sucesso.`,
-      }))
-    );
-  }
-
-  async listarLancamentosUsuarioTodos(req: CRequest, res: Response) {
+  async listarLancamentosUsuario(req: CRequest, res: Response) {
     const { page, pageSize } = req.query;
     const repoLancamento = getRepository(Lancamento);
 
@@ -106,4 +83,4 @@ class LancamentoController {
   }
 }
 
-export default new LancamentoController();
+export default new CategoriaController();
