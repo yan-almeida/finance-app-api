@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { pagination } from 'typeorm-pagination';
 import AuthController from './controller/AuthController';
+import CategoriaController from './controller/CategoriaController';
 import LancamentoController from './controller/LancamentoController';
 import UsuarioController from './controller/UsuarioController';
 import authMiddleware from './middleware/authMiddleware';
+import salvarCategoriaValidator from './validator/categoria.validator';
 import salvarLancamentoValidator from './validator/lancamento.validator';
 import salvarUsuarioValidator from './validator/usuario.validator';
 
@@ -20,16 +21,23 @@ router.get(
 );
 router.delete('/usuario/:id', UsuarioController.deletar);
 
+/** categoria */
+router.post('/categoria', salvarCategoriaValidator, CategoriaController.salvar);
+
 /** lançamento */
 router.post(
   '/lancamento',
   salvarLancamentoValidator,
+  CategoriaController.buscarUm,
   LancamentoController.salvar
 );
-
+router.patch(
+  '/lancamento/:id',
+  salvarLancamentoValidator,
+  CategoriaController.buscarUm,
+  LancamentoController.editar
+);
 router.delete('/lancamento', LancamentoController.deletar);
-
-router.patch('/lancamento/:id', LancamentoController.editar);
 
 /** autenticação de usuário */
 router.post('/auth/sign-in', AuthController.autenticacao);

@@ -1,4 +1,4 @@
-import { Entity, Column, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
 import DefaultColumns from '../util/defaultColumns';
 import Categoria from './Categoria';
 import Usuario from './Usuario';
@@ -11,8 +11,9 @@ class Lancamento extends DefaultColumns {
   @Column()
   data: Date;
 
-  @OneToOne(() => Categoria)
-  categoria: string;
+  @ManyToOne(() => Categoria)
+  @JoinColumn()
+  categoria: Categoria;
 
   @ManyToOne(() => Usuario)
   @JoinColumn()

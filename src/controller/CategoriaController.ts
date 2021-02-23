@@ -1,42 +1,38 @@
-import { parseISO } from 'date-fns';
-import { Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getRepository } from 'typeorm';
+import { CategoriaPayload } from '../@types/categoria';
 import { LancamentoPayload } from '../@types/lancamento';
+import Categoria from '../entity/Categoria';
 import Lancamento from '../entity/Lancamento';
-import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
 import { pagedList } from '../util/pagedList';
 
 class CategoriaController {
-  async salvar(req: CRequest<LancamentoPayload>, res: Response) {
-    const { categoria, descricao, nome, valor, data } = req.body;
+  async salvar(req: CRequest<CategoriaPayload>, res: Response) {
+    const { descricao, nome, url } = req.body;
 
-    const repoLancamento = getRepository(Lancamento);
-    const repoUsuario = getRepository(Usuario);
+    const nomeLowerCase = nome.toLowerCase();
 
-    const usuarioExiste = await repoUsuario.findOne({
-      where: { id: req.userId },
+    const repoCategoria = getRepository(Categoria);
+
+    const categoriaExiste = await repoCategoria.findOne({
+      where: { nome: nomeLowerCase },
     });
 
-    if (!usuarioExiste) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
+    if (categoriaExiste) {
+      return res.sendStatus(StatusCodes.CONFLICT);
     }
 
-    const parsedDate = parseISO(data);
-
-    const lancamento = repoLancamento.create({
-      categoria,
+    const categoria = repoCategoria.create({
       descricao,
-      nome,
-      valor,
-      data: parsedDate,
-      usuario: req.userId,
+      nome: nomeLowerCase,
+      url,
     });
 
-    await repoLancamento.save(lancamento);
+    await repoCategoria.save(categoria);
 
-    return res.json(lancamento);
+    return res.json(categoria);
   }
 
   async editar(req: CRequest<LancamentoPayload>, res: Response) {
@@ -45,7 +41,7 @@ class CategoriaController {
     const repoLancamento = getRepository(Lancamento);
 
     const lancamentoExiste = await repoLancamento.findOne({
-      where: { id: id },
+      where: { id },
     });
 
     if (!lancamentoExiste) {
@@ -60,6 +56,21 @@ class CategoriaController {
     await repoLancamento.save(lancamento);
 
     return res.json(lancamento);
+  }
+
+  async buscarUm(req: Request, res: Response, next: NextFunction) {
+    const { categoria: id } = req.body;
+
+    const repoCategoria = getRepository(Categoria);
+
+    const categoriaExiste = await repoCategoria.findOne(id);
+    if (!categoriaExiste) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ categoria: 'Categoria não encontrada.' });
+    }
+
+    return next();
   }
 
   async listarLancamentosUsuario(req: CRequest, res: Response) {

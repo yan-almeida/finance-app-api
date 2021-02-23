@@ -8,7 +8,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import Lancamento from './Lancamento';
-require('dotenv').config();
 
 const SALTS = process.env.SALTS;
 
