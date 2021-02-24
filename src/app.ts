@@ -9,7 +9,10 @@ export const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+
 app.use(router);
+
+app.use('/uploads', express.static('uploads'));
 
 connectDB();
 

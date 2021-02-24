@@ -1,9 +1,14 @@
 import { Router } from 'express';
+import * as multer from 'multer';
+import { uploads } from './config/multer';
+
 import AuthController from './controller/AuthController';
 import CategoriaController from './controller/CategoriaController';
 import LancamentoController from './controller/LancamentoController';
 import UsuarioController from './controller/UsuarioController';
+
 import authMiddleware from './middleware/authMiddleware';
+
 import salvarCategoriaValidator from './validator/categoria.validator';
 import salvarLancamentoValidator from './validator/lancamento.validator';
 import salvarUsuarioValidator from './validator/usuario.validator';
@@ -22,7 +27,13 @@ router.get(
 router.delete('/usuario/:id', UsuarioController.deletar);
 
 /** categoria */
-router.post('/categoria', salvarCategoriaValidator, CategoriaController.salvar);
+router.post(
+  '/categoria',
+  uploads.single('file'),
+  salvarCategoriaValidator,
+  CategoriaController.salvar
+);
+router.get('/categoria', CategoriaController.listarCategorias);
 
 /** lançamento */
 router.post(

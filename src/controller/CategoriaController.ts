@@ -6,11 +6,10 @@ import { LancamentoPayload } from '../@types/lancamento';
 import Categoria from '../entity/Categoria';
 import Lancamento from '../entity/Lancamento';
 import { CRequest } from '../util/HTTPUtils';
-import { pagedList } from '../util/pagedList';
 
 class CategoriaController {
   async salvar(req: CRequest<CategoriaPayload>, res: Response) {
-    const { descricao, nome, url } = req.body;
+    const { descricao, nome } = req.body;
 
     const nomeLowerCase = nome.toLowerCase();
 
@@ -27,7 +26,7 @@ class CategoriaController {
     const categoria = repoCategoria.create({
       descricao,
       nome: nomeLowerCase,
-      url,
+      blob: req.file.path,
     });
 
     await repoCategoria.save(categoria);
@@ -73,24 +72,16 @@ class CategoriaController {
     return next();
   }
 
-  async listarLancamentosUsuario(req: CRequest, res: Response) {
-    const { page, pageSize } = req.query;
-    const repoLancamento = getRepository(Lancamento);
+  async listarCategorias(req: CRequest, res: Response) {
+    const repoCategoria = getRepository(Categoria);
 
-    const lancamentos = await pagedList<Lancamento>(
-      repoLancamento
-        .createQueryBuilder('lancamento')
-        .orderBy('lancamento.data', 'ASC')
-        .where('lancamento.usuarioId = :id', {
-          id: req.userId,
-        }),
-      {
-        page: page ? page : 1,
-        limit: pageSize ? pageSize : 10,
-      }
-    );
+    const categoriaExiste = await repoCategoria.find();
 
-    return res.json(lancamentos);
+    if (categoriaExiste.length === 0) {
+      return res.sendStatus(StatusCodes.CONFLICT);
+    }
+
+    return res.json(categoriaExiste);
   }
 }
 

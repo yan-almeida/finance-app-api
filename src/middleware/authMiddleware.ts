@@ -7,6 +7,10 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
   const rotasExcluidas = ['/auth/sign-in', '/auth/sign-up', '/auth/refresh'];
 
+  if (rota.includes('uploads')) {
+    return next();
+  }
+
   const rotaExcluida = !!rotasExcluidas.find((p) => p.startsWith(rota));
   if (rotaExcluida) return next();
 
