@@ -70,9 +70,7 @@ class LancamentoController {
     const lancamentoExiste = await repoLancamento.findByIds(ids);
 
     if (lancamentoExiste.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        message: 'Nenhum lançamento encontrado.',
-      });
+      return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
     const lancamentosId = lancamentoExiste.map((lancamento) => lancamento.id);
@@ -92,6 +90,8 @@ class LancamentoController {
     const lancamentos = await pagedList<Lancamento>(
       repoLancamento
         .createQueryBuilder('lancamento')
+        .select(['lancamento', 'categoria.nome', 'categoria.blob'])
+        .innerJoin('lancamento.categoria', 'categoria')
         .orderBy('lancamento.data', 'ASC')
         .where('lancamento.usuarioId = :id', {
           id: req.userId,
@@ -107,3 +107,15 @@ class LancamentoController {
 }
 
 export default new LancamentoController();
+
+/**
+ * 
+ *   .createQueryBuilder('lancamento')
+        .innerJoin('lancamento.categoria', 'categoria')
+        .orderBy('lancamento.data', 'ASC')
+        .where('lancamento.usuarioId = :id', {
+          id: req.userId,
+        }),
+
+        
+ */

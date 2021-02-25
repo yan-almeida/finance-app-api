@@ -7,13 +7,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    randomBytes(16, (error, hash) => {
-      if (error) {
-        cb(error, file.originalname);
-      }
-      const filename = `${hash.toString('HEX')}.png`;
-      cb(null, filename);
-    });
+    cb(null, `${req.body.nome}-image-${file.originalname}`);
   },
 });
 
@@ -23,7 +17,7 @@ export const uploads = multer({
     fileSize: 5 * 1024 * 1024, // 5MB
   },
   fileFilter: (request, file, callback) => {
-    const formats = ['image/jpeg', 'image/jpg', 'image/png'];
+    const formats = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
 
     if (formats.includes(file.mimetype)) {
       callback(null, true);

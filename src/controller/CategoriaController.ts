@@ -6,6 +6,7 @@ import { LancamentoPayload } from '../@types/lancamento';
 import Categoria from '../entity/Categoria';
 import Lancamento from '../entity/Lancamento';
 import { CRequest } from '../util/HTTPUtils';
+require('dotenv').config();
 
 class CategoriaController {
   async salvar(req: CRequest<CategoriaPayload>, res: Response) {
@@ -26,7 +27,7 @@ class CategoriaController {
     const categoria = repoCategoria.create({
       descricao,
       nome: nomeLowerCase,
-      blob: req.file.path,
+      blob: `${process.env.API}/${req.file.path}`,
     });
 
     await repoCategoria.save(categoria);
