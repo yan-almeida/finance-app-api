@@ -18,22 +18,25 @@ const router = Router();
 router.use(authMiddleware);
 
 /** usuário */
-router.get('/usuario', UsuarioController.listarTodos);
 router.get(
   '/usuario/lancamentos',
-
   LancamentoController.listarLancamentosUsuarioTodos
+);
+router.get(
+  '/usuario/lancamentos/:id',
+  LancamentoController.listarLancamentoUsuarioDetalhes
 );
 router.delete('/usuario/:id', UsuarioController.deletar);
 
 /** categoria */
 router.post(
   '/categoria',
-  uploads.single('file'),
   salvarCategoriaValidator,
+  uploads.single('file'),
   CategoriaController.salvar
 );
 router.get('/categoria', CategoriaController.listarCategorias);
+router.get('/categoria/:id', CategoriaController.listarCategoriasDetalhes);
 
 /** lançamento */
 router.post(

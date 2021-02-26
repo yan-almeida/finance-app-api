@@ -65,21 +65,34 @@ class CategoriaController {
 
     const categoriaExiste = await repoCategoria.findOne(id);
     if (!categoriaExiste) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .send({ categoria: 'Categoria não encontrada.' });
+      return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    return next();
+    return next(categoriaExiste);
   }
 
   async listarCategorias(req: CRequest, res: Response) {
     const repoCategoria = getRepository(Categoria);
 
-    const categoriaExiste = await repoCategoria.find();
+    const categoriaExiste = await repoCategoria.find({
+      select: ['nome', 'blob'],
+    });
 
     if (categoriaExiste.length === 0) {
       return res.sendStatus(StatusCodes.CONFLICT);
+    }
+
+    return res.json(categoriaExiste);
+  }
+
+  async listarCategoriasDetalhes(req: Request, res: Response) {
+    const { id } = req.params;
+    const repoCategoria = getRepository(Categoria);
+
+    const categoriaExiste = await repoCategoria.findOne({ where: { id } });
+
+    if (!categoriaExiste) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
     return res.json(categoriaExiste);

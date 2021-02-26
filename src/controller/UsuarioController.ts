@@ -40,24 +40,6 @@ class UsuarioController {
 
     return res.json({ message: 'Conta deletada com sucesso.' });
   }
-
-  /** metodo para testes */
-  async listarTodos(_: Request, res: Response) {
-    const repoUsuario = getRepository(Usuario);
-    const usuarios = await repoUsuario.find();
-
-    if (usuarios.length === 0) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
-    }
-
-    return res.json(
-      usuarios.map((usario) => ({
-        id: usario.id,
-        nome: usario.nome,
-        email: usario.email,
-      }))
-    );
-  }
 }
 
 export default new UsuarioController();

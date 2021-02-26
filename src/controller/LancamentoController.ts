@@ -84,7 +84,7 @@ class LancamentoController {
   }
 
   async listarLancamentosUsuarioTodos(req: CRequest, res: Response) {
-    const { page, pageSize } = req.query;
+    const { page, pageSize, categoriaNome } = req.query;
     const repoLancamento = getRepository(Lancamento);
 
     const lancamentos = await pagedList<Lancamento>(
@@ -93,7 +93,10 @@ class LancamentoController {
         .select(['lancamento', 'categoria.nome', 'categoria.blob'])
         .innerJoin('lancamento.categoria', 'categoria')
         .orderBy('lancamento.data', 'ASC')
-        .where('lancamento.usuarioId = :id', {
+        .where('categoria.nome like :nome', {
+          nome: `%${categoriaNome.trim()}%`,
+        })
+        .andWhere('lancamento.usuarioId = :id', {
           id: req.userId,
         }),
       {
@@ -104,18 +107,30 @@ class LancamentoController {
 
     return res.json(lancamentos);
   }
+
+  async listarLancamentoUsuarioDetalhes(req: CRequest, res: Response) {
+    const { id } = req.params;
+    const repoLancamento = getRepository(Lancamento);
+
+    const lancamentoExiste = await repoLancamento.findOne({
+      relations: ['categoria'],
+      where: { id, usuario: req.userId },
+    });
+
+    if (!lancamentoExiste) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    return res.json(lancamentoExiste);
+  }
 }
 
 export default new LancamentoController();
 
 /**
- * 
- *   .createQueryBuilder('lancamento')
-        .innerJoin('lancamento.categoria', 'categoria')
-        .orderBy('lancamento.data', 'ASC')
-        .where('lancamento.usuarioId = :id', {
-          id: req.userId,
-        }),
-
-        
+ * ({
+      where: { id, usuario: req.userId },
+      relations: ['categoria'],
+      select: ['lancamento', 'categoria'],
+    })
  */
