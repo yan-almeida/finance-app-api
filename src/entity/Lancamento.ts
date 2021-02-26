@@ -8,6 +8,9 @@ class Lancamento extends DefaultColumns {
   @Column({ type: 'float' })
   valor: number;
 
+  @Column({ nullable: true })
+  entrada: boolean;
+
   @Column()
   data: Date;
 

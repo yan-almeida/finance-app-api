@@ -1,5 +1,5 @@
 Arguments: 
-  /home/yanalmeida/.nvm/versions/node/v14.15.5/bin/node /usr/share/yarn/bin/yarn.js add pg-query-strea
+  /home/yanalmeida/.nvm/versions/node/v14.15.5/bin/node /usr/share/yarn/bin/yarn.js add -D @types/sort-by-typescript
 
 PATH: 
   /home/yanalmeida/.vscode-server/bin/622cb03f7e070a9670c94bae1a45d78d7181fbd4/bin:/home/yanalmeida/.zinit/polaris/bin:/home/yanalmeida/.nvm/versions/node/v14.15.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/ProgramData/DockerDesktop/version-bin:/mnt/c/Users/keys8/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/keys8/AppData/Local/Programs/Microsoft VS Code/bin
@@ -14,7 +14,7 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/pg-query-strea: Not found
+  Error: https://registry.yarnpkg.com/@types%2fsort-by-typescript: Not found
       at Request.params.callback [as _callback] (/usr/share/yarn/lib/cli.js:66988:18)
       at Request.self.callback (/usr/share/yarn/lib/cli.js:140749:22)
       at Request.emit (events.js:315:20)
@@ -55,6 +55,7 @@ npm manifest:
       "nodemon": "^2.0.7",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.10",
+      "sort-by-typescript": "^1.1.0",
       "typeorm": "0.2.31",
       "typeorm-pagination": "^2.0.1",
       "yup": "^0.32.9",
@@ -1774,6 +1775,11 @@ Lockfile:
     version "3.0.3"
     resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.3.tgz#a1410c2edd8f077b08b4e253c8eacfcaf057461c"
     integrity sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
+  
+  sort-by-typescript@^1.1.0:
+    version "1.1.0"
+    resolved "https://registry.yarnpkg.com/sort-by-typescript/-/sort-by-typescript-1.1.0.tgz#7d64db82a642138010d238d749a3213d624da622"
+    integrity sha512-/w4QBFKn/279iOQ1MHT2NUCRZ791aqSljcpNSMg2Tq5iLqxS1vUApr76P6kmF/cHuUgUcyrErmOTt3P6TdDjyA==
   
   source-map-support@^0.4.0:
     version "0.4.18"

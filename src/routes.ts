@@ -20,11 +20,20 @@ router.use(authMiddleware);
 /** usuário */
 router.get(
   '/usuario/lancamentos',
-  LancamentoController.listarLancamentosUsuarioTodos
+  UsuarioController.listarLancamentosUsuarioTodos
 );
 router.get(
-  '/usuario/lancamentos/:id',
-  LancamentoController.listarLancamentoUsuarioDetalhes
+  '/usuario/lancamento/:id',
+  UsuarioController.listarLancamentoUsuarioDetalhes
+);
+router.get('/usuario/stats/categoria', UsuarioController.estatisticasCategoria);
+router.get(
+  '/usuario/stats/data-entrada',
+  UsuarioController.estatisticasDataEntrada
+);
+router.get(
+  '/usuario/stats/data-saida',
+  UsuarioController.estatisticasDataSaida
 );
 router.delete('/usuario/:id', UsuarioController.deletar);
 
@@ -36,7 +45,7 @@ router.post(
   CategoriaController.salvar
 );
 router.get('/categoria', CategoriaController.listarCategorias);
-router.get('/categoria/:id', CategoriaController.listarCategoriasDetalhes);
+router.get('/categoria/detalhes', CategoriaController.listarCategoriasDetalhes);
 
 /** lançamento */
 router.post(

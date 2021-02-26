@@ -6,11 +6,10 @@ import { LancamentoPayload } from '../@types/lancamento';
 import Lancamento from '../entity/Lancamento';
 import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
-import { pagedList } from '../util/pagedList';
 
 class LancamentoController {
   async salvar(req: CRequest<LancamentoPayload>, res: Response) {
-    const { categoria, descricao, nome, valor, data } = req.body;
+    const { categoria, descricao, nome, valor, data, entrada } = req.body;
 
     const repoLancamento = getRepository(Lancamento);
     const repoUsuario = getRepository(Usuario);
@@ -30,6 +29,7 @@ class LancamentoController {
       descricao,
       nome,
       valor,
+      entrada,
       data: parsedDate,
       usuario: req.userId,
     });
@@ -82,55 +82,6 @@ class LancamentoController {
       }))
     );
   }
-
-  async listarLancamentosUsuarioTodos(req: CRequest, res: Response) {
-    const { page, pageSize, categoriaNome } = req.query;
-    const repoLancamento = getRepository(Lancamento);
-
-    const lancamentos = await pagedList<Lancamento>(
-      repoLancamento
-        .createQueryBuilder('lancamento')
-        .select(['lancamento', 'categoria.nome', 'categoria.blob'])
-        .innerJoin('lancamento.categoria', 'categoria')
-        .orderBy('lancamento.data', 'ASC')
-        .where('categoria.nome like :nome', {
-          nome: `%${categoriaNome.trim()}%`,
-        })
-        .andWhere('lancamento.usuarioId = :id', {
-          id: req.userId,
-        }),
-      {
-        page: page ? page : 1,
-        limit: pageSize ? pageSize : 10,
-      }
-    );
-
-    return res.json(lancamentos);
-  }
-
-  async listarLancamentoUsuarioDetalhes(req: CRequest, res: Response) {
-    const { id } = req.params;
-    const repoLancamento = getRepository(Lancamento);
-
-    const lancamentoExiste = await repoLancamento.findOne({
-      relations: ['categoria'],
-      where: { id, usuario: req.userId },
-    });
-
-    if (!lancamentoExiste) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
-    }
-
-    return res.json(lancamentoExiste);
-  }
 }
 
 export default new LancamentoController();
-
-/**
- * ({
-      where: { id, usuario: req.userId },
-      relations: ['categoria'],
-      select: ['lancamento', 'categoria'],
-    })
- */

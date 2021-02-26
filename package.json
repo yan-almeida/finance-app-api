@@ -26,6 +26,7 @@
     "nodemon": "^2.0.7",
     "pg": "^8.4.0",
     "reflect-metadata": "^0.1.10",
+    "sort-by-typescript": "^1.1.0",
     "typeorm": "0.2.31",
     "typeorm-pagination": "^2.0.1",
     "yup": "^0.32.9",

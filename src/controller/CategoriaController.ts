@@ -68,10 +68,10 @@ class CategoriaController {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    return next(categoriaExiste);
+    return next();
   }
 
-  async listarCategorias(req: CRequest, res: Response) {
+  async listarCategorias(_: CRequest, res: Response) {
     const repoCategoria = getRepository(Categoria);
 
     const categoriaExiste = await repoCategoria.find({
@@ -85,13 +85,12 @@ class CategoriaController {
     return res.json(categoriaExiste);
   }
 
-  async listarCategoriasDetalhes(req: Request, res: Response) {
-    const { id } = req.params;
+  async listarCategoriasDetalhes(_: Request, res: Response) {
     const repoCategoria = getRepository(Categoria);
 
-    const categoriaExiste = await repoCategoria.findOne({ where: { id } });
+    const categoriaExiste = await repoCategoria.find();
 
-    if (!categoriaExiste) {
+    if (categoriaExiste.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 

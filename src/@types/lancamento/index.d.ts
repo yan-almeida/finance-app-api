@@ -6,4 +6,5 @@ export type LancamentoPayload = {
   valor: number;
   categoria: Categoria;
   data: string;
+  entrada: boolean;
 };
