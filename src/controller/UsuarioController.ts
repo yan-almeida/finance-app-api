@@ -93,6 +93,7 @@ class UsuarioController {
       .select(['categoria.nome'])
       .innerJoin('lancamento.categoria', 'categoria')
       .addSelect('COUNT(*) AS porcentagem')
+      .orderBy('porcentagem', 'DESC')
       .groupBy('categoria.nome')
       .getRawMany();
 
@@ -117,6 +118,7 @@ class UsuarioController {
 
     const lancamentoExiste = await repoLancamento.find({
       where: { usuario: req.userId, entrada: true },
+      order: { data: 'ASC' },
       take: 7,
     });
 
@@ -124,7 +126,7 @@ class UsuarioController {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    return res.json(lancamentoExiste.sort(sortBy('-data')));
+    return res.json(lancamentoExiste);
   }
 
   async estatisticasDataSaida(req: Request, res: Response) {
@@ -132,6 +134,7 @@ class UsuarioController {
 
     const lancamentoExiste = await repoLancamento.find({
       where: { usuario: req.userId, entrada: false },
+      order: { data: 'ASC' },
       take: 7,
     });
 
@@ -139,7 +142,7 @@ class UsuarioController {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    return res.json(lancamentoExiste.sort(sortBy('-data')));
+    return res.json(lancamentoExiste);
   }
 }
 

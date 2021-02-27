@@ -60,7 +60,8 @@ router.patch(
   CategoriaController.buscarUm,
   LancamentoController.editar
 );
-router.delete('/lancamento', LancamentoController.deletar);
+router.delete('/lancamento/:id', LancamentoController.deletarUm);
+router.delete('/lancamento', LancamentoController.deletarVarios);
 
 /** autenticação de usuário */
 router.post('/auth/sign-in', AuthController.autenticacao);

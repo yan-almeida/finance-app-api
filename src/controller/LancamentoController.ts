@@ -1,5 +1,5 @@
 import { parseISO } from 'date-fns';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getRepository } from 'typeorm';
 import { LancamentoPayload } from '../@types/lancamento';
@@ -62,25 +62,43 @@ class LancamentoController {
     return res.json(lancamento);
   }
 
-  async deletar(req: CRequest<{ ids: number[] }>, res: Response) {
+  async deletarVarios(req: CRequest<{ ids: number[] }>, res: Response) {
     const { ids } = req.body;
 
     const repoLancamento = getRepository(Lancamento);
 
-    const lancamentoExiste = await repoLancamento.findByIds(ids);
+    const lancamentosExistem = await repoLancamento.findByIds(ids);
 
-    if (lancamentoExiste.length === 0) {
+    if (lancamentosExistem.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    const lancamentosId = lancamentoExiste.map((lancamento) => lancamento.id);
+    const lancamentosId = lancamentosExistem.map((lancamento) => lancamento.id);
     await repoLancamento.delete(lancamentosId);
 
     return res.json(
-      lancamentoExiste.map((lancamento) => ({
+      lancamentosExistem.map((lancamento) => ({
         message: `Lancamento ${lancamento.nome} deletado com sucesso.`,
       }))
     );
+  }
+
+  async deletarUm(req: Request, res: Response) {
+    const { id } = req.params;
+
+    const repoLancamento = getRepository(Lancamento);
+
+    const lancamentoExiste = await repoLancamento.findOne(id);
+
+    if (!lancamentoExiste) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    await repoLancamento.delete(lancamentoExiste.id);
+
+    return res.json({
+      message: `Lancamento ${lancamentoExiste.nome} deletado com sucesso.`,
+    });
   }
 }
 
