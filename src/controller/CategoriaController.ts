@@ -27,7 +27,7 @@ class CategoriaController {
     const categoria = repoCategoria.create({
       descricao,
       nome: nomeLowerCase,
-      blob: `${process.env.API}/${req.file.path}`,
+      blob: `http://localhost:3333/${req.file.path}`,
     });
 
     await repoCategoria.save(categoria);

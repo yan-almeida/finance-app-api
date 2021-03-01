@@ -97,7 +97,7 @@ class UsuarioController {
       .groupBy('categoria.nome')
       .getRawMany();
 
-    if (!estatisticasExistem) {
+    if (estatisticasExistem.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 

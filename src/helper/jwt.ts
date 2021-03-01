@@ -6,7 +6,7 @@ require('dotenv').config();
 const TOKEN_PRIVATE_KEY = process.env.JWT_TOKEN_PRIVATE_KEY; // secret key - .env
 const REFRESH_TOKEN_PRIVATE_KEY = process.env.JWT_REFRESH_TOKEN_PRIVATE_KEY; // secret key - .env
 
-const options = { expiresIn: '30 minutes' };
+const options = { expiresIn: '1 day' };
 const refreshOptions = { expiresIn: '30 days' };
 
 export const generateJwt = (payload: Payload) => {
@@ -28,7 +28,7 @@ export const verifyRefreshJwt = (token: string) => {
 export const getTokenFromHeaders = (
   headers: IncomingHttpHeaders
 ): string | null => {
-  const token = headers['authorization'];
+  const token = headers['authorization'].replace(/[\\"]/g, '');
 
   return token ? token.slice(7, token.length) : null;
 };

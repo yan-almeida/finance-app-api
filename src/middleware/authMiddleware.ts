@@ -3,7 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import { getTokenFromHeaders, verifyJwt } from '../helper/jwt';
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const { url: rota } = req;
+  const { url } = req;
+  const rota = url.replace('/api/v1', '');
 
   const rotasExcluidas = ['/auth/sign-in', '/auth/sign-up', '/auth/refresh'];
 
