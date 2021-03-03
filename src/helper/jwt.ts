@@ -28,7 +28,7 @@ export const verifyRefreshJwt = (token: string) => {
 export const getTokenFromHeaders = (
   headers: IncomingHttpHeaders
 ): string | null => {
-  const token = headers['authorization'].replace(/[\\"]/g, '');
+  const token = headers['authorization'];
 
-  return token ? token.slice(7, token.length) : null;
+  return token ? token.replace(/[\\"]/g, '').slice(7, token.length) : null;
 };
