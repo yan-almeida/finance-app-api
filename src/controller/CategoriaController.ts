@@ -10,7 +10,7 @@ require('dotenv').config();
 
 class CategoriaController {
   async salvar(req: CRequest<CategoriaPayload>, res: Response) {
-    const { descricao, nome } = req.body;
+    const { descricao, nome, cor } = req.body;
 
     const nomeLowerCase = nome.toLowerCase();
 
@@ -28,6 +28,7 @@ class CategoriaController {
       descricao,
       nome: nomeLowerCase,
       blob: `http://localhost:3333/${req.file.path}`,
+      cor,
     });
 
     await repoCategoria.save(categoria);
@@ -75,7 +76,7 @@ class CategoriaController {
     const repoCategoria = getRepository(Categoria);
 
     const categoriaExiste = await repoCategoria.find({
-      select: ['nome', 'blob'],
+      select: ['nome', 'blob', 'cor'],
     });
 
     if (categoriaExiste.length === 0) {

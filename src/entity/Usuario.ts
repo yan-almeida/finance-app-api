@@ -7,6 +7,7 @@ import {
   BeforeInsert,
   OneToMany,
 } from 'typeorm';
+import CorCategoria from './CorCategoria';
 import Lancamento from './Lancamento';
 
 const SALTS = process.env.SALTS;
@@ -27,6 +28,9 @@ class Usuario {
 
   @OneToMany(() => Lancamento, (lancamento) => lancamento.usuario)
   lancamentos: Lancamento[];
+
+  @OneToMany(() => CorCategoria, (cor) => cor.categoria)
+  cor: CorCategoria[];
 
   @BeforeInsert()
   @BeforeUpdate()

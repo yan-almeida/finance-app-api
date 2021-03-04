@@ -5,6 +5,9 @@ import DefaultColumns from '../util/defaultColumns';
 class Categoria extends DefaultColumns {
   @Column()
   blob: string;
+
+  @Column()
+  cor: string;
 }
 
 export default Categoria;

@@ -7,6 +7,7 @@ import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
 import { sortBy } from 'sort-by-typescript';
 import { pagedList } from '../util/pagedList';
+import { EstatisticasCategoriaType } from '../@types/categoria';
 
 class UsuarioController {
   async salvar(req: CRequest<SalvarUsuarioPayload>, res: Response) {
@@ -88,14 +89,14 @@ class UsuarioController {
   async estatisticasCategoria(_: Request, res: Response) {
     const repoLancamento = getRepository(Lancamento);
 
-    const estatisticasExistem = await repoLancamento
+    const estatisticasExistem = (await repoLancamento
       .createQueryBuilder('lancamento')
-      .select(['categoria.nome'])
+      .select(['categoria.nome', 'categoria.cor'])
       .innerJoin('lancamento.categoria', 'categoria')
       .addSelect('COUNT(*) AS porcentagem')
       .orderBy('porcentagem', 'DESC')
-      .groupBy('categoria.nome')
-      .getRawMany();
+      .groupBy('categoria.nome, categoria.cor')
+      .getRawMany()) as EstatisticasCategoriaType[];
 
     if (estatisticasExistem.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
@@ -105,12 +106,14 @@ class UsuarioController {
       .map((estatistica) => Number(estatistica.porcentagem))
       .reduce((acc, sum) => acc + sum);
 
-    const estatisticaFinal = estatisticasExistem.map((estatistica) => ({
-      nome: estatistica.categoria_nome as string,
-      porcentagem: (Number(estatistica.porcentagem) / porcentagemTotal) * 100,
+    const estatisticasFinal = estatisticasExistem.map((x) => ({
+      id: x.categoria_nome,
+      label: x.categoria_nome as string,
+      value: (Number(x.porcentagem) / porcentagemTotal) * 100,
+      color: x.categoria_cor,
     }));
 
-    return res.json(estatisticaFinal);
+    return res.json(estatisticasFinal);
   }
 
   async estatisticasDataEntrada(req: Request, res: Response) {
