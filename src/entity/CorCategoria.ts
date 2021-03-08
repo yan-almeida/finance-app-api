@@ -14,15 +14,14 @@ class CorCategoria {
   id: number;
 
   @Column()
-  cor: string;
+  @JoinColumn()
+  corCategoria: string;
 
   @ManyToOne(() => Categoria)
-  @JoinColumn()
-  categoria: Categoria;
+  categoria: number;
 
   @ManyToOne(() => Usuario)
-  @JoinColumn()
-  usuario: Categoria;
+  usuario: string;
 }
 
 export default CorCategoria;
