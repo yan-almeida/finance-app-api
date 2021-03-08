@@ -7,7 +7,10 @@ import LancamentoController from './controller/LancamentoController';
 import UsuarioController from './controller/UsuarioController';
 import authMiddleware from './middleware/authMiddleware';
 import salvarCategoriaValidator from './validator/categoria.validator';
-import { salvarCorCategoriaValidator } from './validator/corCategoria.validator';
+import {
+  editarCorCategoriaValidator,
+  salvarCorCategoriaValidator,
+} from './validator/corCategoria.validator';
 import salvarLancamentoValidator from './validator/lancamento.validator';
 import salvarUsuarioValidator from './validator/usuario.validator';
 require('dotenv').config();
@@ -55,10 +58,18 @@ router.get(
   CategoriaController.listarCategoriasDetalhes
 );
 
-router.patch(
-  `${process.env.API}/categoria/:idCategoria/cor`,
+router.post(
+  `${process.env.API}/categoria/:categoriaId/cor`,
+  CategoriaController.buscarUm,
   salvarCorCategoriaValidator,
-  CorCategoriaController.cor
+  CorCategoriaController.salvar
+);
+
+router.patch(
+  `${process.env.API}/categoria/:categoriaId/cor`,
+  CategoriaController.buscarUm,
+  editarCorCategoriaValidator,
+  CorCategoriaController.editar
 );
 
 /** lançamento */
