@@ -2,10 +2,12 @@ import { Router } from 'express';
 import { uploads } from './config/multer';
 import AuthController from './controller/AuthController';
 import CategoriaController from './controller/CategoriaController';
+import CorCategoriaController from './controller/CorCategoriaController';
 import LancamentoController from './controller/LancamentoController';
 import UsuarioController from './controller/UsuarioController';
 import authMiddleware from './middleware/authMiddleware';
 import salvarCategoriaValidator from './validator/categoria.validator';
+import { salvarCorCategoriaValidator } from './validator/corCategoria.validator';
 import salvarLancamentoValidator from './validator/lancamento.validator';
 import salvarUsuarioValidator from './validator/usuario.validator';
 require('dotenv').config();
@@ -49,8 +51,14 @@ router.get(
   CategoriaController.listarCategorias
 );
 router.get(
-  `${process.env.API}/categoria/detalhes`,
+  `${process.env.API}/categorias/detalhes`,
   CategoriaController.listarCategoriasDetalhes
+);
+
+router.patch(
+  `${process.env.API}/categoria/:idCategoria/cor`,
+  salvarCorCategoriaValidator,
+  CorCategoriaController.cor
 );
 
 /** lançamento */

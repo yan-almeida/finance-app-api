@@ -11,3 +11,13 @@ export type EstatisticasCategoriaType = {
   porcentagem: string;
   categoria_cor: string;
 };
+
+export type CategoriaDetalhes = {
+  id: number;
+  nome: string;
+  descricao: string;
+  blob: string;
+  cor: string;
+  corCategoria?: string;
+  corid?: string;
+};
