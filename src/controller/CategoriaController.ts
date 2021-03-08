@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { getRepository } from 'typeorm';
-import { CategoriaPayload } from '../@types/categoria';
+import { getManager, getRepository } from 'typeorm';
+import { CategoriaDetalhes, CategoriaPayload } from '../@types/categoria';
 import { LancamentoPayload } from '../@types/lancamento';
 import Categoria from '../entity/Categoria';
+import CorCategoria from '../entity/CorCategoria';
 import Lancamento from '../entity/Lancamento';
 import { CRequest } from '../util/HTTPUtils';
 require('dotenv').config();
@@ -36,29 +37,6 @@ class CategoriaController {
     return res.json(categoria);
   }
 
-  async editar(req: CRequest<LancamentoPayload>, res: Response) {
-    const { id } = req.params;
-
-    const repoLancamento = getRepository(Lancamento);
-
-    const lancamentoExiste = await repoLancamento.findOne({
-      where: { id },
-    });
-
-    if (!lancamentoExiste) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
-    }
-
-    const lancamento = await repoLancamento.preload({
-      id: parseInt(id),
-      ...req.body,
-    });
-
-    await repoLancamento.save(lancamento);
-
-    return res.json(lancamento);
-  }
-
   async buscarUm(req: Request, res: Response, next: NextFunction) {
     const { categoria: id } = req.body;
 
@@ -86,16 +64,37 @@ class CategoriaController {
     return res.json(categoriaExiste);
   }
 
-  async listarCategoriasDetalhes(_: Request, res: Response) {
+  async listarCategoriasDetalhes(req: Request, res: Response) {
     const repoCategoria = getRepository(Categoria);
 
-    const categoriaExiste = await repoCategoria.find();
+    const corCategoriaExiste = (await repoCategoria.query(
+      `
+      SELECT 
+        c.*, cc."corCategoria", cc."id" as corId
+      FROM 
+        categoria c 
+      LEFT JOIN 
+        "corCategoria" cc 
+      ON 
+        "c"."id"="cc"."categoriaId"
+      AND
+        cc."usuarioId" = '${req.userId}'
+      `
+    )) as CategoriaDetalhes[];
 
-    if (categoriaExiste.length === 0) {
+    if (corCategoriaExiste.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    return res.json(categoriaExiste);
+    const corCategoria = corCategoriaExiste.map((categoria) => ({
+      id: categoria.id,
+      nome: categoria.nome,
+      descricao: categoria.descricao,
+      blob: categoria.blob,
+      cor: categoria.corCategoria ? categoria.corCategoria : categoria.cor,
+      corId: categoria.corid,
+    }));
+    return res.json(corCategoria);
   }
 }
 

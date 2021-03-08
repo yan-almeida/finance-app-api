@@ -45,7 +45,7 @@ class LancamentoController {
     const repoLancamento = getRepository(Lancamento);
 
     const lancamentoExiste = await repoLancamento.findOne({
-      where: { id: id },
+      where: { id },
     });
 
     if (!lancamentoExiste) {
