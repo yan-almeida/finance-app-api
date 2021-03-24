@@ -5,7 +5,7 @@ import Usuario from './Usuario';
 
 @Entity('lancamento')
 class Lancamento extends DefaultColumns {
-  @Column({ type: 'float' })
+  @Column({ type: 'decimal', precision: 15, scale: 2 })
   valor: number;
 
   @Column({ nullable: true })

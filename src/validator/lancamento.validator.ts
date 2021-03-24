@@ -1,4 +1,5 @@
 import { NextFunction, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { ValidationError } from 'yup';
 import { LancamentoPayload } from '../@types/lancamento';
 
@@ -24,7 +25,7 @@ export const salvarLancamentoValidator = async (
         validationErrors[e.path as any] = e.message;
       });
 
-      return res.json(validationErrors);
+      return res.status(StatusCodes.BAD_REQUEST).send(validationErrors);
     }
   }
 };
