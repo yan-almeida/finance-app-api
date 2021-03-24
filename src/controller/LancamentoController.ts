@@ -28,7 +28,7 @@ class LancamentoController {
       categoria,
       descricao,
       nome,
-      valor,
+      valor: parseFloat(valor),
       entrada,
       data: parsedDate,
       usuario: req.userId,
@@ -39,7 +39,10 @@ class LancamentoController {
     return res.json(lancamento);
   }
 
-  async editar(req: CRequest<LancamentoPayload>, res: Response) {
+  async editar(
+    req: CRequest<LancamentoPayload & { valor: number }>,
+    res: Response
+  ) {
     const { id } = req.params;
 
     const repoLancamento = getRepository(Lancamento);
@@ -99,6 +102,20 @@ class LancamentoController {
     return res.json({
       message: `Lancamento ${lancamentoExiste.nome} deletado com sucesso.`,
     });
+  }
+
+  async listarUm(req: Request, res: Response) {
+    const { id } = req.params;
+
+    const repoLancamento = getRepository(Lancamento);
+
+    const lancamentoExiste = await repoLancamento.findOne(id);
+
+    if (!lancamentoExiste) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    return res.json(lancamentoExiste);
   }
 }
 

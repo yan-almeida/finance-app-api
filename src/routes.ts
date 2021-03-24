@@ -75,8 +75,8 @@ router.patch(
 /** lançamento */
 router.post(
   `${process.env.API}/lancamento`,
-  salvarLancamentoValidator,
   CategoriaController.buscarUm,
+  salvarLancamentoValidator,
   LancamentoController.salvar
 );
 router.patch(
@@ -85,12 +85,13 @@ router.patch(
   CategoriaController.buscarUm,
   LancamentoController.editar
 );
+router.get(`${process.env.API}/lancamento/:id`, LancamentoController.listarUm);
 router.delete(
   `${process.env.API}/lancamento/:id`,
   LancamentoController.deletarUm
 );
 router.delete(
-  `${process.env.API}/lancamento`,
+  `${process.env.API}/lancamentos`,
   LancamentoController.deletarVarios
 );
 
