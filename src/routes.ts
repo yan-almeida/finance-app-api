@@ -33,13 +33,10 @@ router.get(
   UsuarioController.estatisticasCategoria
 );
 router.get(
-  `${process.env.API}/usuario/stats/data-entrada`,
-  UsuarioController.estatisticasDataEntrada
+  `${process.env.API}/usuario/stats/data`,
+  UsuarioController.estatisticasData
 );
-router.get(
-  `${process.env.API}/usuario/stats/data-saida`,
-  UsuarioController.estatisticasDataSaida
-);
+
 router.delete(`${process.env.API}/usuario/:id`, UsuarioController.deletar);
 
 /** categoria */
@@ -50,12 +47,12 @@ router.post(
   CategoriaController.salvar
 );
 router.get(
-  `${process.env.API}/categoria`,
+  `${process.env.API}/categorias`,
   CategoriaController.listarCategorias
 );
 router.get(
-  `${process.env.API}/categorias/detalhes`,
-  CategoriaController.listarCategoriasDetalhes
+  `${process.env.API}/categoria/:categoriaId/detalhes`,
+  CategoriaController.listarCategoriaDetalhes
 );
 
 router.post(

@@ -9,7 +9,7 @@ import { CRequest } from '../util/HTTPUtils';
 
 class LancamentoController {
   async salvar(req: CRequest<LancamentoPayload>, res: Response) {
-    const { categoria, descricao, nome, valor, data, entrada } = req.body;
+    const { categoria, descricao, nome, valor, data, gastou } = req.body;
 
     const repoLancamento = getRepository(Lancamento);
     const repoUsuario = getRepository(Usuario);
@@ -29,7 +29,7 @@ class LancamentoController {
       descricao,
       nome,
       valor: parseFloat(valor),
-      entrada,
+      gastou,
       data: parsedDate,
       usuario: req.userId,
     });
@@ -109,13 +109,25 @@ class LancamentoController {
 
     const repoLancamento = getRepository(Lancamento);
 
-    const lancamentoExiste = await repoLancamento.findOne(id);
+    const lancamentoExiste = await repoLancamento.findOne(id, {
+      relations: ['categoria'],
+    });
 
     if (!lancamentoExiste) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    return res.json(lancamentoExiste);
+    const lancamento = {
+      id: lancamentoExiste.id,
+      nome: lancamentoExiste.nome,
+      descricao: lancamentoExiste.descricao,
+      valor: lancamentoExiste.valor,
+      gastou: lancamentoExiste.gastou,
+      data: lancamentoExiste.data,
+      categoria: lancamentoExiste.categoria.id,
+    };
+
+    return res.json(lancamento);
   }
 }
 

@@ -5,9 +5,11 @@ import { SalvarUsuarioPayload } from '../@types/usuario';
 import Lancamento from '../entity/Lancamento';
 import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
-import { sortBy } from 'sort-by-typescript';
 import { pagedList } from '../util/pagedList';
 import { EstatisticasCategoriaType } from '../@types/categoria';
+import Categoria from '../entity/Categoria';
+
+type IDays = '6 days' | '14 days' | '30 days';
 
 class UsuarioController {
   async salvar(req: CRequest<SalvarUsuarioPayload>, res: Response) {
@@ -54,7 +56,7 @@ class UsuarioController {
         .createQueryBuilder('lancamento')
         .select(['lancamento', 'categoria.nome', 'categoria.blob'])
         .innerJoin('lancamento.categoria', 'categoria')
-        .orderBy('lancamento.data', 'ASC')
+        .orderBy('lancamento.data', 'DESC')
         .where('categoria.nome like :nome', {
           nome: `%${categoriaNome && categoriaNome.trim()}%`,
         })
@@ -66,6 +68,10 @@ class UsuarioController {
         limit: pageSize ? pageSize : 10,
       }
     );
+
+    if (lancamentos.length === 0) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
 
     return res.json(lancamentos);
   }
@@ -86,16 +92,26 @@ class UsuarioController {
     return res.json(lancamentoExiste);
   }
 
-  async estatisticasCategoria(_: Request, res: Response) {
-    const repoLancamento = getRepository(Lancamento);
+  async estatisticasCategoria(req: Request, res: Response) {
+    const repoCategoria = getRepository(Categoria);
 
-    const estatisticasExistem = (await repoLancamento
-      .createQueryBuilder('lancamento')
-      .select(['categoria.nome', 'categoria.cor'])
-      .innerJoin('lancamento.categoria', 'categoria')
-      .addSelect('COUNT(*) AS porcentagem')
+    const estatisticasExistem = (await repoCategoria
+      .createQueryBuilder('c')
+      .select([
+        'c.id id',
+        'c.nome nome',
+        'c.cor cor',
+        'cc.corCategoria corcategoria',
+        'cc.id corId',
+        'COUNT(l.usuarioId) porcentagem',
+      ])
+      .innerJoin('lancamento', 'l', 'l.categoriaId = c.id')
+      .leftJoin('corCategoria', 'cc', 'c.id = cc.categoriaId')
+      .where('l.usuarioId = :id', {
+        id: req.userId,
+      })
       .orderBy('porcentagem', 'DESC')
-      .groupBy('categoria.nome, categoria.cor')
+      .groupBy('c.nome, c.cor, c.id, cc.corCategoria, cc.id')
       .getRawMany()) as EstatisticasCategoriaType[];
 
     if (estatisticasExistem.length === 0) {
@@ -103,43 +119,45 @@ class UsuarioController {
     }
 
     const porcentagemTotal = estatisticasExistem
-      .map((estatistica) => Number(estatistica.porcentagem))
+      .map((x) => Number(x.porcentagem))
       .reduce((acc, sum) => acc + sum);
 
     const estatisticasFinal = estatisticasExistem.map((x) => ({
-      id: x.categoria_nome,
-      label: x.categoria_nome as string,
-      value: (Number(x.porcentagem) / porcentagemTotal) * 100,
-      color: x.categoria_cor,
+      id: x.id,
+      nome: x.nome,
+      porcentagem: ((Number(x.porcentagem) / porcentagemTotal) * 100).toFixed(
+        0
+      ),
+      cor: x.corcategoria ? x.corcategoria : x.cor,
+      corId: x.corid,
     }));
 
     return res.json(estatisticasFinal);
   }
 
-  async estatisticasDataEntrada(req: Request, res: Response) {
+  async estatisticasData(req: Request, res: Response) {
     const repoLancamento = getRepository(Lancamento);
 
-    const lancamentoExiste = await repoLancamento.find({
-      where: { usuario: req.userId, entrada: true },
-      order: { data: 'ASC' },
-      take: 7,
-    });
+    const days = req.query.filtro ? req.query.filtro : '6 days';
+    const gastou = req.query.gastou == 'true' ? true : false;
 
-    if (lancamentoExiste.length === 0) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
-    }
-
-    return res.json(lancamentoExiste);
-  }
-
-  async estatisticasDataSaida(req: Request, res: Response) {
-    const repoLancamento = getRepository(Lancamento);
-
-    const lancamentoExiste = await repoLancamento.find({
-      where: { usuario: req.userId, entrada: false },
-      order: { data: 'ASC' },
-      take: 7,
-    });
+    const lancamentoExiste = await repoLancamento
+      .createQueryBuilder('l')
+      .select([
+        "CONCAT (EXTRACT(YEAR FROM l.data), '-', EXTRACT(MONTH FROM l.data), '-', EXTRACT(DAY FROM l.data)) periodo",
+        'sum(l.valor) total',
+      ])
+      .where(`l.data > current_date - interval '${days}'`)
+      .andWhere('l.gastou = :gastou', {
+        gastou,
+      })
+      .andWhere('l.usuarioId = :id', {
+        id: req.userId,
+      })
+      .groupBy(
+        'l.usuarioId, EXTRACT(YEAR FROM l.data), EXTRACT(MONTH FROM l.data), EXTRACT(DAY FROM l.data)'
+      )
+      .getRawMany();
 
     if (lancamentoExiste.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);

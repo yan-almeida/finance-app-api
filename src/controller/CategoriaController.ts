@@ -1,11 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { getManager, getRepository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { CategoriaDetalhes, CategoriaPayload } from '../@types/categoria';
-import { LancamentoPayload } from '../@types/lancamento';
 import Categoria from '../entity/Categoria';
-import CorCategoria from '../entity/CorCategoria';
-import Lancamento from '../entity/Lancamento';
 import { CRequest } from '../util/HTTPUtils';
 require('dotenv').config();
 
@@ -44,7 +41,9 @@ class CategoriaController {
 
     const categoriaExiste = await repoCategoria.findOne(id);
     if (!categoriaExiste) {
-      return res.sendStatus(StatusCodes.NOT_FOUND);
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send(['Categoria não encontrada.']);
     }
 
     return next();
@@ -54,7 +53,7 @@ class CategoriaController {
     const repoCategoria = getRepository(Categoria);
 
     const categoriaExiste = await repoCategoria.find({
-      select: ['nome', 'blob', 'cor'],
+      select: ['id', 'nome', 'blob', 'cor'],
     });
 
     if (categoriaExiste.length === 0) {
@@ -64,8 +63,17 @@ class CategoriaController {
     return res.json(categoriaExiste);
   }
 
-  async listarCategoriasDetalhes(req: Request, res: Response) {
+  async listarCategoriaDetalhes(req: Request, res: Response) {
+    const { categoriaId } = req.params;
+
     const repoCategoria = getRepository(Categoria);
+
+    const categoriaExiste = await repoCategoria.findOne(parseInt(categoriaId));
+    if (!categoriaExiste) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send(['Categoria não encontrada.']);
+    }
 
     const corCategoriaExiste = (await repoCategoria.query(
       `
@@ -79,6 +87,8 @@ class CategoriaController {
         "c"."id"="cc"."categoriaId"
       AND
         cc."usuarioId" = '${req.userId}'
+      AND
+        c."id" = ${categoriaExiste.id}
       `
     )) as CategoriaDetalhes[];
 
@@ -86,15 +96,21 @@ class CategoriaController {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    const corCategoria = corCategoriaExiste.map((categoria) => ({
-      id: categoria.id,
-      nome: categoria.nome,
-      descricao: categoria.descricao,
-      blob: categoria.blob,
-      cor: categoria.corCategoria ? categoria.corCategoria : categoria.cor,
-      corId: categoria.corid,
-    }));
-    return res.json(corCategoria);
+    const corCategoria = corCategoriaExiste.filter((categoria) => {
+      if (categoria.id == categoriaExiste.id)
+        return {
+          id: categoria.id,
+          nome: categoria.nome,
+          descricao: categoria.descricao,
+          blob: categoria.blob,
+          cor: categoria.corCategoria ? categoria.corCategoria : categoria.cor,
+          corId: categoria.corid,
+        };
+    });
+
+    console.log(categoriaExiste, corCategoria);
+
+    return res.json(corCategoria[0]);
   }
 }
 

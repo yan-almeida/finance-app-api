@@ -3,8 +3,8 @@ import Categoria from '../../entity/Categoria';
 export type LancamentoPayload = {
   nome: string;
   descricao: string;
-  valor: number;
+  valor: string;
   categoria: Categoria;
   data: string;
-  entrada: boolean;
+  gastou: boolean;
 };

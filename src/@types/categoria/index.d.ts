@@ -7,9 +7,12 @@ export type CategoriaPayload = {
 };
 
 export type EstatisticasCategoriaType = {
-  categoria_nome: string;
+  id: number;
+  nome: string;
+  cor: string;
+  corcategoria: string;
+  corid: number;
   porcentagem: string;
-  categoria_cor: string;
 };
 
 export type CategoriaDetalhes = {
