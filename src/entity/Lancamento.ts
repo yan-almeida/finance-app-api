@@ -9,7 +9,7 @@ class Lancamento extends DefaultColumns {
   valor: number;
 
   @Column({ nullable: true })
-  entrada: boolean;
+  gastou: boolean;
 
   @Column()
   data: Date;

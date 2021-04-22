@@ -1,5 +1,3 @@
-import { randomBytes } from 'crypto';
-
 import * as multer from 'multer';
 
 const storage = multer.diskStorage({
@@ -12,7 +10,7 @@ const storage = multer.diskStorage({
 });
 
 export const uploads = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB
   },
