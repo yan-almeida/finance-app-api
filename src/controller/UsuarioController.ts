@@ -1,15 +1,18 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { getRepository } from 'typeorm';
-import { SalvarUsuarioPayload } from '../@types/usuario';
+import { getRepository, Not, Between } from 'typeorm';
+import { EditarUsuarioPayload, SalvarUsuarioPayload } from '../@types/usuario';
 import Lancamento from '../entity/Lancamento';
 import Usuario from '../entity/Usuario';
 import { CRequest } from '../util/HTTPUtils';
 import { pagedList } from '../util/pagedList';
-import { EstatisticasCategoriaType } from '../@types/categoria';
+import {
+  CategoriaDataType,
+  EstatisticasCategoriaType,
+} from '../@types/categoria';
 import Categoria from '../entity/Categoria';
-
-type IDays = '6 days' | '14 days' | '30 days';
+import { groupBy } from '../util/arrayUtils';
+import { format } from 'date-fns';
 
 class UsuarioController {
   async salvar(req: CRequest<SalvarUsuarioPayload>, res: Response) {
@@ -31,23 +34,62 @@ class UsuarioController {
     return res.json(usuario);
   }
 
-  async deletar(req: Request, res: Response) {
-    const { id } = req.params;
-
+  async editar(req: CRequest<Partial<EditarUsuarioPayload>>, res: Response) {
     const repoUsuario = getRepository(Usuario);
 
-    const usuarioExiste = await repoUsuario.findOne({ where: { id } });
+    const usuarioExiste = await repoUsuario.findOne({
+      where: { id: req.userId },
+    });
 
     if (!usuarioExiste) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
-    await repoUsuario.delete(id);
+    const usuarioEmailExiste = await repoUsuario.findOne({
+      where: { email: req.body.email, id: Not(req.userId) },
+    });
 
-    return res.json({ message: 'Conta deletada com sucesso.' });
+    if (usuarioEmailExiste) {
+      return res.sendStatus(StatusCodes.CONFLICT);
+    }
+
+    const usuario = await repoUsuario.preload({
+      id: req.userId,
+      ...req.body,
+    });
+
+    await repoUsuario.save(usuario);
+
+    const { senha, ...usuarioAtualizado } = await repoUsuario.findOne({
+      where: { id: req.userId },
+      relations: ['orientacaoSexual', 'genero'],
+    });
+
+    return res.json(usuarioAtualizado);
   }
 
-  async listarLancamentosUsuarioTodos(req: CRequest, res: Response) {
+  async deletar(req: Request, res: Response) {
+    const repoUsuario = getRepository(Usuario);
+
+    const usuarioExiste = await repoUsuario.findOne({
+      where: { id: req.userId },
+    });
+
+    if (!usuarioExiste) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    const usuario = await repoUsuario.preload({
+      id: req.userId,
+      ...{ ativo: false },
+    });
+
+    await repoUsuario.save(usuario);
+
+    return res.json({ message: 'Conta desativada com sucesso.' });
+  }
+
+  async listarLancamentosUsuario(req: CRequest, res: Response) {
     const { page, pageSize, categoriaNome } = req.query;
     const repoLancamento = getRepository(Lancamento);
 
@@ -126,7 +168,7 @@ class UsuarioController {
       id: x.id,
       nome: x.nome,
       porcentagem: ((Number(x.porcentagem) / porcentagemTotal) * 100).toFixed(
-        0
+        1
       ),
       cor: x.corcategoria ? x.corcategoria : x.cor,
       corId: x.corid,
@@ -138,16 +180,16 @@ class UsuarioController {
   async estatisticasData(req: Request, res: Response) {
     const repoLancamento = getRepository(Lancamento);
 
-    const days = req.query.filtro ? req.query.filtro : '6 days';
+    const dias = (req.query.dias ? req.query.dias : 6) as number;
     const gastou = req.query.gastou == 'true' ? true : false;
 
-    const lancamentoExiste = await repoLancamento
+    const lancamentoExiste = (await repoLancamento
       .createQueryBuilder('l')
       .select([
         "CONCAT (EXTRACT(YEAR FROM l.data), '-', EXTRACT(MONTH FROM l.data), '-', EXTRACT(DAY FROM l.data)) periodo",
         'sum(l.valor) total',
       ])
-      .where(`l.data > current_date - interval '${days}'`)
+      .where(`l.data > current_date - interval '${dias} days'`)
       .andWhere('l.gastou = :gastou', {
         gastou,
       })
@@ -157,13 +199,53 @@ class UsuarioController {
       .groupBy(
         'l.usuarioId, EXTRACT(YEAR FROM l.data), EXTRACT(MONTH FROM l.data), EXTRACT(DAY FROM l.data)'
       )
-      .getRawMany();
+      .orderBy('periodo')
+      .getRawMany()) as CategoriaDataType[];
 
     if (lancamentoExiste.length === 0) {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
     return res.json(lancamentoExiste);
+  }
+
+  async estatisticasAno(req: Request, res: Response) {
+    const repoLancamento = getRepository(Lancamento);
+    const ano = req.query.ano ? req.query.ano : new Date().getFullYear();
+
+    const lancamentosExistem = await repoLancamento.find({
+      where: {
+        usuario: req.userId,
+        data: Between(
+          new Date(+ano, 0, 0).toISOString(),
+          new Date(+ano, 12, 0).toISOString()
+        ),
+      },
+      relations: ['categoria'],
+    });
+
+    if (lancamentosExistem.length === 0) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    const lancamentos = lancamentosExistem.map((lanc) => {
+      const { valor, categoria, data, id, ..._ } = lanc;
+
+      return {
+        id,
+        valor,
+        categoria: categoria.nome,
+        data: format(new Date(data), 'yyyy-MM-dd'),
+      };
+    });
+
+    const estatisticasAno = groupBy(lancamentos, 'data').map((x) => ({
+      date: x.key,
+      count: x.elements.length,
+      lancamentos: x.elements,
+    }));
+
+    return res.json(estatisticasAno);
   }
 }
 

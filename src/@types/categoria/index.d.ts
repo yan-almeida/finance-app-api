@@ -24,3 +24,8 @@ export type CategoriaDetalhes = {
   corCategoria?: string;
   corid?: string;
 };
+
+export type CategoriaDataType = {
+  periodo: string;
+  total: string;
+};

@@ -108,8 +108,6 @@ class CategoriaController {
         };
     });
 
-    console.log(categoriaExiste, corCategoria);
-
     return res.json(corCategoria[0]);
   }
 }

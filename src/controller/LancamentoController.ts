@@ -55,9 +55,14 @@ class LancamentoController {
       return res.sendStatus(StatusCodes.NOT_FOUND);
     }
 
+    const lancamentoEditado = {
+      ...req.body,
+      valor: parseFloat(req.body.valor),
+    };
+
     const lancamento = await repoLancamento.preload({
       id: parseInt(id),
-      ...req.body,
+      ...lancamentoEditado,
     });
 
     await repoLancamento.save(lancamento);

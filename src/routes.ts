@@ -3,7 +3,9 @@ import { uploads } from './config/multer';
 import AuthController from './controller/AuthController';
 import CategoriaController from './controller/CategoriaController';
 import CorCategoriaController from './controller/CorCategoriaController';
+import GeneroController from './controller/GeneroController';
 import LancamentoController from './controller/LancamentoController';
+import OrientacaoSexualController from './controller/OrientacaoSexualController';
 import UsuarioController from './controller/UsuarioController';
 import authMiddleware from './middleware/authMiddleware';
 import salvarCategoriaValidator from './validator/categoria.validator';
@@ -19,10 +21,19 @@ const router = Router();
 
 router.use(authMiddleware);
 
+/** gênero */
+router.get(`${process.env.API}/generos`, GeneroController.listarTodos);
+
+/** orientação sexual */
+router.get(
+  `${process.env.API}/orientacaoSexual`,
+  OrientacaoSexualController.listarTodos
+);
+
 /** usuário */
 router.get(
   `${process.env.API}/usuario/lancamentos`,
-  UsuarioController.listarLancamentosUsuarioTodos
+  UsuarioController.listarLancamentosUsuario
 );
 router.get(
   `${process.env.API}/usuario/lancamento/:id`,
@@ -36,6 +47,11 @@ router.get(
   `${process.env.API}/usuario/stats/data`,
   UsuarioController.estatisticasData
 );
+router.get(
+  `${process.env.API}/usuario/stats/ano`,
+  UsuarioController.estatisticasAno
+);
+router.patch(`${process.env.API}/usuario`, UsuarioController.editar);
 
 router.delete(`${process.env.API}/usuario/:id`, UsuarioController.deletar);
 
@@ -93,6 +109,8 @@ router.delete(
 );
 
 /** autenticação de usuário */
+router.get(`${process.env.API}/auth/profile`, AuthController.perfil);
+router.post(`${process.env.API}/auth/reset-pass`, AuthController.resetarSenha);
 router.post(`${process.env.API}/auth/sign-in`, AuthController.autenticacao);
 router.post(
   `${process.env.API}/auth/sign-up`,

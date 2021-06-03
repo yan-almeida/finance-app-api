@@ -6,7 +6,12 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const { url } = req;
   const rota = url.replace('/api/v1', '');
 
-  const rotasExcluidas = ['/auth/sign-in', '/auth/sign-up', '/auth/refresh'];
+  const rotasExcluidas = [
+    '/auth/sign-in',
+    '/auth/sign-up',
+    '/auth/refresh',
+    '/auth/reset-pass',
+  ];
 
   if (rota.includes('uploads')) {
     return next();
