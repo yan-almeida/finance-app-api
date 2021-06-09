@@ -98,7 +98,7 @@ class UsuarioController {
         .createQueryBuilder('lancamento')
         .select(['lancamento', 'categoria.nome', 'categoria.blob'])
         .innerJoin('lancamento.categoria', 'categoria')
-        .orderBy('lancamento.data', 'DESC')
+        .orderBy('lancamento.id', 'DESC')
         .where('categoria.nome like :nome', {
           nome: `%${categoriaNome && categoriaNome.trim()}%`,
         })

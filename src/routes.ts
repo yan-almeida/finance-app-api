@@ -111,6 +111,7 @@ router.delete(
 /** autenticação de usuário */
 router.get(`${process.env.API}/auth/profile`, AuthController.perfil);
 router.post(`${process.env.API}/auth/reset-pass`, AuthController.resetarSenha);
+router.patch(`${process.env.API}/auth/change-pass`, AuthController.trocarSenha);
 router.post(`${process.env.API}/auth/sign-in`, AuthController.autenticacao);
 router.post(
   `${process.env.API}/auth/sign-up`,

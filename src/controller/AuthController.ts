@@ -18,6 +18,11 @@ type ResetSenha = {
   senha: string;
 };
 
+type ChangeSenha = {
+  senhaAtual: string;
+  novaSenha: string;
+};
+
 class AuthController {
   async autenticacao(req: CRequest<AuthUsuarioPayload>, res: Response) {
     const { email, senha } = req.body;
@@ -102,6 +107,36 @@ class AuthController {
       id: usuario.id,
       ...{
         senha: hashSync(newPass, SALTS),
+      },
+    });
+
+    await repoUsuario.save(usuarioNovaSenha);
+
+    return res.sendStatus(StatusCodes.OK);
+  }
+
+  async trocarSenha(req: CRequest<ChangeSenha>, res: Response) {
+    const { novaSenha, senhaAtual } = req.body;
+
+    const repoUsuario = getRepository(Usuario);
+
+    const usuario = await repoUsuario.findOne({
+      where: { id: req.userId },
+    });
+
+    if (!usuario) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+    const senhaValida = await compare(senhaAtual, usuario.senha);
+
+    if (!senhaValida) {
+      return res.sendStatus(StatusCodes.NOT_FOUND);
+    }
+
+    const usuarioNovaSenha = await repoUsuario.preload({
+      id: usuario.id,
+      ...{
+        senha: hashSync(novaSenha, SALTS),
       },
     });
 
